@@ -279,7 +279,6 @@ export default function App() {
                 )}
                 {generated && <button className="btn btn-outline" onClick={() => exportCSV(assignments, weekStart, weekEnd)}>📥 CSV</button>}
                 {generated && <button className="btn btn-outline" style={{ color:'#4a154b' }} onClick={() => setShowSlack(true)}>💬 Slack</button>}
-                {generated && <button className="btn btn-outline" onClick={() => window.print()}>🖨 Print</button>}
               </div>
             </div>
 
@@ -341,7 +340,6 @@ export default function App() {
                 {!adminMode && (
                   <>
                     <button className="btn btn-outline btn-sm" onClick={() => exportCSV(assignments, weekStart, weekEnd)}>📥 CSV</button>
-                    <button className="btn btn-outline btn-sm" onClick={() => window.print()}>🖨 Print</button>
                   </>
                 )}
                 {['schedule','byPerson'].map(v => (
