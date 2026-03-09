@@ -1,9 +1,10 @@
 import { getDaysInRange, formatDate } from './dates'
 
 const LABELS = {
-  morning: 'Morning (8am-2pm)',
-  evening: 'Evening (2pm-8pm)',
-  weekend: 'On Duty (10am-5pm)',
+  morning: 'Morning (8am–2pm)',
+  evening: 'Evening (2pm–8pm)',
+  weekend: 'On Duty (10am–5pm)',
+  wrapup:  'Wrap-up',
   off:     'Off',
 }
 
@@ -13,7 +14,7 @@ export function exportCSV(assignments, weekStart, weekEnd) {
   const rows   = assignments.map(p => [
     p.name,
     `Category ${p.catKey}`,
-    ...rd.map(({ dayName }) => LABELS[p.schedule[dayName]] || ''),
+    ...rd.map(({ dateStr }) => LABELS[p.schedule[dateStr]] || ''),
   ])
   const csv  = [header, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
   const blob = new Blob([csv], { type: 'text/csv' })

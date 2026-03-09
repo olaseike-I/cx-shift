@@ -1,74 +1,111 @@
 export default function ScheduleTable({ dayRows, maxM, maxE }) {
   return (
-    <div style={{ background:'white', borderRadius:12, border:'1px solid #e5e7eb', overflowX:'auto', boxShadow:'0 1px 3px rgba(0,0,0,.05)' }}>
-      <table style={{ fontSize:13, width:'100%' }}>
+    <div style={{ background: 'white', borderRadius: 12, border: '1px solid #e5e7eb', overflowX: 'auto', boxShadow: '0 1px 3px rgba(0,0,0,.05)' }}>
+      <table style={{ fontSize: 13, width: '100%' }}>
         <thead>
           <tr>
-            <th style={{ background:'#f3f4f6', padding:'10px 12px', textAlign:'left', width:110, fontWeight:700, color:'#374151' }} />
-            <th style={{ background:'#bbf7d0', padding:'10px 8px', textAlign:'center', fontWeight:700, color:'#14532d' }} colSpan={maxM}>
-              8 am – 2 pm
+            <th style={{ background: '#f3f4f6', padding: '10px 12px', textAlign: 'left', width: 110, fontWeight: 700, color: '#374151' }} />
+            <th style={{ background: '#bbf7d0', padding: '10px 8px', textAlign: 'center', fontWeight: 700, color: '#14532d' }} colSpan={maxM}>
+              8 am – 2 pm / On Duty
             </th>
-            <th style={{ background:'#86efac', padding:'10px 8px', textAlign:'center', fontWeight:700, color:'#14532d' }} colSpan={maxE}>
-              2 pm – 8 pm
+            <th style={{ background: '#86efac', padding: '10px 8px', textAlign: 'center', fontWeight: 700, color: '#14532d' }} colSpan={maxE}>
+              2 pm – 8 pm / Wrap-up
             </th>
-            <th style={{ background:'#fef9c3', padding:'10px 8px', textAlign:'center', fontWeight:700, color:'#713f12' }}>
-              Off Days
+            <th style={{ background: '#fef9c3', padding: '10px 8px', textAlign: 'center', fontWeight: 700, color: '#713f12' }}>
+              Off
             </th>
           </tr>
         </thead>
-        <tbody>
-          {dayRows.map((row, idx) => {
-            const { day, dateStr, isWeekend, morning, evening, weekend, off } = row
+        {dayRows.map((row, idx) => {
+            const { day, dateStr, isWeekend, morning, evening, weekend, wrapup, off } = row
             const showSep = day === 'Monday' && idx > 0
+
+            const bgRow = isWeekend ? '#fff7ed' : idx % 2 === 0 ? 'white' : '#f9fafb'
+
+            // For weekend rows: morning-cols = On Duty, evening-cols = Wrap-up
+            const morningSlots = isWeekend ? weekend : morning
+            const eveningSlots = isWeekend ? wrapup  : evening
+            const offSlots     = isWeekend ? off     : off
+
             return (
-              <tr key={dateStr} style={{ display: showSep ? undefined : undefined }}>
+              <tbody key={dateStr}>
                 {showSep && (
-                  <td colSpan={1 + maxM + maxE + 1}
-                    style={{ background:'#d1d5db', height:5, padding:0, display:'table-cell' }}
-                  />
+                  <tr>
+                    <td colSpan={1 + maxM + maxE + 1}
+                      style={{ background: '#d1d5db', height: 5, padding: 0 }}
+                    />
+                  </tr>
                 )}
-                {!showSep && (
-                  <>
-                    <td style={{ padding:'8px 10px', fontWeight:600, color: isWeekend ? '#92400e' : '#374151', whiteSpace:'nowrap',
-                      background: isWeekend ? '#fff7ed' : idx % 2 === 0 ? 'white' : '#f9fafb' }}>
-                      <div>{day.slice(0,3)}</div>
-                      <div style={{ fontSize:11, color:'#9ca3af', fontWeight:400 }}>{dateStr.slice(5).replace('-','/')}</div>
+              <tr>
+                {/* Date cell */}
+                <td style={{
+                  padding: '8px 10px', fontWeight: 600, whiteSpace: 'nowrap',
+                  color:      isWeekend ? '#92400e' : '#374151',
+                  background: bgRow,
+                }}>
+                  <div>{day.slice(0, 3)}</div>
+                  <div style={{ fontSize: 11, color: '#9ca3af', fontWeight: 400 }}>
+                    {dateStr.slice(5).replace('-', '/')}
+                  </div>
+                </td>
+
+                {/* Morning / On Duty columns */}
+                {Array.from({ length: maxM }).map((_, i) => {
+                  const name = morningSlots[i]
+                  const bg   = name
+                    ? (isWeekend ? '#f97316' : '#22c55e')
+                    : bgRow
+                  const color = name ? 'white' : '#d1d5db'
+                  return (
+                    <td key={i} style={{ padding: '6px', textAlign: 'center', background: bg, color }}>
+                      {name
+                        ? <>
+                            <div style={{ fontWeight: 700 }}>{name}</div>
+                            <div style={{ fontSize: 10, opacity: .85 }}>
+                              {isWeekend ? '10am–5pm' : '8am–2pm'}
+                            </div>
+                          </>
+                        : '—'
+                      }
                     </td>
-                    {isWeekend
-                      ? Array.from({ length: maxM }).map((_, i) => (
-                          <td key={i} style={{ padding:'6px', textAlign:'center', background: weekend[i] ? '#f97316' : '#fff7ed', color: weekend[i] ? 'white' : '#d1d5db' }}>
-                            {weekend[i] ? <><div style={{ fontWeight:700 }}>{weekend[i]}</div><div style={{ fontSize:10, opacity:.85 }}>10am–5pm</div></> : '—'}
-                          </td>
-                        ))
-                      : Array.from({ length: maxM }).map((_, i) => (
-                          <td key={i} style={{ padding:'8px 6px', textAlign:'center', fontWeight:600,
-                            background: morning[i] ? '#22c55e' : '#f9fafb', color: morning[i] ? 'white' : '#d1d5db' }}>
-                            {morning[i] || '—'}
-                          </td>
-                        ))
-                    }
-                    {isWeekend
-                      ? Array.from({ length: maxE }).map((_, i) => (
-                          <td key={i} style={{ background:'#fff7ed', color:'#d1d5db', padding:'8px', textAlign:'center' }}>—</td>
-                        ))
-                      : Array.from({ length: maxE }).map((_, i) => (
-                          <td key={i} style={{ padding:'8px 6px', textAlign:'center', fontWeight:600,
-                            background: evening[i] ? '#15803d' : '#f9fafb', color: evening[i] ? 'white' : '#d1d5db' }}>
-                            {evening[i] || '—'}
-                          </td>
-                        ))
-                    }
-                    <td style={{ padding:'8px 6px', textAlign:'center', fontWeight:600,
-                      background: isWeekend ? '#fff7ed' : off.length ? '#fde047' : '#f9fafb',
-                      color: isWeekend ? '#d1d5db' : off.length ? '#78350f' : '#d1d5db' }}>
-                      {!isWeekend && off.length ? off.join(', ') : '—'}
+                  )
+                })}
+
+                {/* Evening / Wrap-up columns */}
+                {Array.from({ length: maxE }).map((_, i) => {
+                  const name = eveningSlots[i]
+                  const bg   = name
+                    ? (isWeekend ? '#e5e7eb' : '#15803d')
+                    : bgRow
+                  const color = name
+                    ? (isWeekend ? '#6b7280' : 'white')
+                    : '#d1d5db'
+                  return (
+                    <td key={i} style={{ padding: '8px 6px', textAlign: 'center', fontWeight: 600, background: bg, color }}>
+                      {name
+                        ? <>
+                            <div style={{ fontWeight: 700 }}>{name}</div>
+                            {!isWeekend && <div style={{ fontSize: 10, opacity: .85 }}>2pm–8pm</div>}
+                            {isWeekend && <div style={{ fontSize: 10, opacity: .75 }}>Wrap-up</div>}
+                          </>
+                        : '—'
+                      }
                     </td>
-                  </>
-                )}
+                  )
+                })}
+
+                {/* Off column */}
+                <td style={{
+                  padding: '8px 6px', textAlign: 'center', fontWeight: 600,
+                  background: offSlots.length ? '#fde047' : bgRow,
+                  color:      offSlots.length ? '#78350f' : '#d1d5db',
+                }}>
+                  {offSlots.length ? offSlots.join(', ') : '—'}
+                </td>
               </tr>
+              </tbody>
             )
-          })}
-        </tbody>
+        })}
       </table>
     </div>
   )
